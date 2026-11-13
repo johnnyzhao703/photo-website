@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moments — Personal Photo Album</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
+
+:root {
+    --background: #ffffff;
+    --text: #202020;
+    --muted: #888888;
+    --border: #eeeeee;
+    --accent: #77766f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+/* NAVIGATION */
+
+nav {
+    height: 82px;
+    padding: 0 8%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 27px;
+    letter-spacing: -1px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 35px;
+    list-style: none;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #555;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    color: #000;
+}
+
+.upload-btn {
+    background: #222;
+    color: white;
+    padding: 11px 20px;
+    border: none;
+    border-radius: 3px;
+    font-family: inherit;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.3s;
+}
+
+.upload-btn:hover {
+    background: #555;
+}
+
+/* HERO */
+
+.hero {
+    padding: 105px 8% 85px;
+    text-align: center;
+}
+
+.hero-label {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+}
+
+.hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 400;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    color: #888;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* GALLERY HEADER */
+
+.gallery-section {
+    padding: 0 8% 100px;
+}
+
+.gallery-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.gallery-heading h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 27px;
+    font-weight: 400;
+}
+
+.photo-count {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+/* FILTERS */
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 35px;
+}
+
+.filter {
+    border: none;
+    background: transparent;
+    color: #999;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    padding-bottom: 7px;
+    border-bottom: 1px solid transparent;
+    transition: 0.3s;
+}
+
+.filter.active,
+.filter:hover {
+    color: #222;
+    border-color: #222;
+}
+
+/* PHOTO GRID */
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px 20px;
+}
+
+.photo-card {
+    cursor: pointer;
+    animation: fadeIn 0.5s ease;
+}
+
+.photo-card.hidden {
+    display: none;
+}
+
+.photo-image {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    display: block;
+    background: #f1f0ed;
+    transition: transform 0.5s;
+}
+
+.photo-card:hover .photo-image {
+    transform: scale(1.015);
+}
+
+.image-wrapper {
+    overflow: hidden;
+    background: #f1f0ed;
+}
+
+.photo-info {
+    padding: 13px 0 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.photo-title {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.photo-category {
+    font-size: 10px;
+    color: #999;
+}
+
+/* ABOUT */
+
+.about {
+    background: #f8f8f6;
+    padding: 95px 10%;
+    text-align: center;
+}
+
+.about h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 37px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.about p {
+    color: #888;
+    font-size: 13px;
+    line-height: 2;
+    max-width: 520px;
+    margin: auto;
+}
+
+/* FOOTER */
+
+footer {
+    padding: 35px 8%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #999;
+}
+
+/* LIGHTBOX */
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,15,15,0.96);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 40px;
+}
+
+.lightbox.open {
+    display: flex;
+}
+
+.lightbox img {
+    max-width: 85%;
+    max-height: 78vh;
+    object-fit: contain;
+}
+
+.close, .prev, .next {
+    position: absolute;
+    color: white;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.close {
+    top: 25px;
+    right: 35px;
+}
+
+.prev {
+    left: 25px;
+}
+
+.next {
+    right: 25px;
+}
+
+.lightbox-caption {
+    position: absolute;
+    bottom: 25px;
+    color: white;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 800px) {
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    nav {
+        padding: 0 5%;
+    }
+
+    .gallery-section {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+}
+
+@media(max-width: 520px) {
+    .gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 75px 5%;
+    }
+
+    .nav-links {
+        gap: 12px;
+    }
+
+    .nav-links a {
+        font-size: 11px;
+    }
+
+    .upload-btn {
+        padding: 9px 12px;
+    }
+
+    .lightbox {
+        padding: 15px;
+    }
+
+    .lightbox img {
+        max-width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+
+<nav>
+    <div class="logo">Moments.</div>
+
+    <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#about">About</a></li>
+    </ul>
+
+    <button class="upload-btn"
+        onclick="document.getElementById('upload').click()">
+        + Add Photos
+    </button>
+
+    <input type="file" id="upload"
+        accept="image/*" multiple hidden>
+</nav>
+
+<!-- HERO -->
+
+<header class="hero" id="home">
+
+    <div class="hero-label">A Personal Collection</div>
+
+    <h1>Life in photographs.</h1>
+
+    <p>
+        A collection of little moments, beautiful places,
+        <br>
+        and memories worth keeping.
+    </p>
+
+</header>
+
+<!-- GALLERY -->
+
+<section class="gallery-section" id="gallery">
+
+    <div class="gallery-heading">
+        <h2>Selected Memories</h2>
+        <span class="photo-count" id="photoCount">
+            06 Photographs
+        </span>
+    </div>
+
+    <!-- CATEGORY FILTERS -->
+
+    <div class="filters">
+
+        <button class="filter active"
+            data-category="all">All Photos</button>
+
+        <button class="filter"
+            data-category="travel">Travel</button>
+
+        <button class="filter"
+            data-category="people">People</button>
+
+        <button class="filter"
+            data-category="nature">Nature</button>
+
+        <button class="filter"
+            data-category="everyday">Everyday</button>
+
+    </div>
+
+    <!-- PHOTO GRID -->
+
+    <div class="gallery" id="galleryGrid">
+
+        <!--
+        IMAGE PLACEHOLDER TEMPLATE
+
+        Replace images/photo-01.jpg with your actual image path.
+        Replace the title, category and description as desired.
+        -->
+
+        <article class="photo-card"
+            data-category="travel"
+            data-title="Somewhere in Europe"
+            data-description="A beautiful afternoon away.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-01.jpg"
+                    alt="Travel photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">Somewhere in Europe</span>
+                <span class="photo-category">Travel</span>
+            </div>
+        </article>
+
+
+        <article class="photo-card"
+            data-category="nature"
+            data-title="Quiet Mornings"
+            data-description="A peaceful moment in nature.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-02.jpg"
+                    alt="Nature photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">Quiet Mornings</span>
+                <span class="photo-category">Nature</span>
+            </div>
+        </article>
+
+
+        <article class="photo-card"
+            data-category="people"
+            data-title="Good Company"
+            data-description="Memories with good people.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-03.jpg"
+                    alt="People photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">Good Company</span>
+                <span class="photo-category">People</span>
+            </div>
+        </article>
+
+
+        <article class="photo-card"
+            data-category="everyday"
+            data-title="Little Details"
+            data-description="Finding beauty in ordinary days.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-04.jpg"
+                    alt="Everyday photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">Little Details</span>
+                <span class="photo-category">Everyday</span>
+            </div>
+        </article>
+
+
+        <article class="photo-card"
+            data-category="travel"
+            data-title="The Weekend"
+            data-description="A weekend worth remembering.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-05.jpg"
+                    alt="Weekend photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">The Weekend</span>
+                <span class="photo-category">Travel</span>
+            </div>
+        </article>
+
+
+        <article class="photo-card"
+            data-category="nature"
+            data-title="Golden Hour"
+            data-description="The world in a different light.">
+
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="images/photo-06.jpg"
+                    alt="Golden hour photograph">
+            </div>
+
+            <div class="photo-info">
+                <span class="photo-title">Golden Hour</span>
+                <span class="photo-category">Nature</span>
+            </div>
+        </article>
+
+    </div>
+
+</section>
+
+<!-- ABOUT -->
+
+<section class="about" id="about">
+
+    <h2>Every picture tells a story.</h2>
+
+    <p>
+        This is a little corner of the internet dedicated
+        to preserving memories. Places visited, people met,
+        and moments that deserve to last a little longer.
+    </p>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+    <span>© 2026 Moments.</span>
+    <span>Made to remember.</span>
+</footer>
+
+
+<!-- LIGHTBOX -->
+
+<div class="lightbox" id="lightbox">
+
+    <button class="close" id="close">&times;</button>
+
+    <button class="prev" id="prev">&#10094;</button>
+
+    <img id="lightboxImage" src="" alt="Selected photograph">
+
+    <button class="next" id="next">&#10095;</button>
+
+    <div class="lightbox-caption" id="caption"></div>
+
+</div>
+
+
+<script>
+
+// FILTER FUNCTIONALITY
+
+const filters = document.querySelectorAll('.filter');
+const cards = document.querySelectorAll('.photo-card');
+
+filters.forEach(button => {
+
+    button.addEventListener('click', () => {
+
+        filters.forEach(btn =>
+            btn.classList.remove('active'));
+
+        button.classList.add('active');
+
+        const category = button.dataset.category;
+
+        cards.forEach(card => {
+
+            if (category === 'all' ||
+                card.dataset.category === category) {
+
+                card.classList.remove('hidden');
+
+            } else {
+
+                card.classList.add('hidden');
+
+            }
+
+        });
+
+        updateCount();
+
+    });
+
+});
+
+
+// PHOTO COUNTER
+
+function updateCount() {
+
+    const visible = [...document.querySelectorAll('.photo-card')]
+        .filter(card => !card.classList.contains('hidden'));
+
+    document.getElementById('photoCount').textContent =
+        String(visible.length).padStart(2, '0') +
+        ' Photographs';
+
+}
+
+updateCount();
+
+
+// LIGHTBOX
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImage = document.getElementById('lightboxImage');
+const caption = document.getElementById('caption');
+
+let currentImages = [];
+let currentIndex = 0;
+
+function openLightbox(index) {
+
+    currentImages = [...document.querySelectorAll(
+        '.photo-card:not(.hidden)')];
+
+    currentIndex = index;
+
+    showImage();
+
+    lightbox.classList.add('open');
+
+}
+
+function showImage() {
+
+    const card = currentImages[currentIndex];
+    const img = card.querySelector('img');
+
+    lightboxImage.src = img.src;
+
+    caption.textContent =
+        card.dataset.title + ' — ' +
+        card.dataset.description;
+
+}
+
+document.querySelectorAll('.photo-card').forEach(card => {
+
+    card.addEventListener('click', () => {
+
+        const visible = [...document.querySelectorAll(
+            '.photo-card:not(.hidden)')];
+
+        openLightbox(visible.indexOf(card));
+
+    });
+
+});
+
+document.getElementById('close').onclick = () => {
+    lightbox.classList.remove('open');
+};
+
+document.getElementById('prev').onclick = () => {
+
+    currentIndex =
+        (currentIndex - 1 + currentImages.length) %
+        currentImages.length;
+
+    showImage();
+
+};
+
+document.getElementById('next').onclick = () => {
+
+    currentIndex =
+        (currentIndex + 1) % currentImages.length;
+
+    showImage();
+
+};
+
+document.addEventListener('keydown', event => {
+
+    if (!lightbox.classList.contains('open')) return;
+
+    if (event.key === 'Escape')
+        lightbox.classList.remove('open');
+
+    if (event.key === 'ArrowLeft')
+        document.getElementById('prev').click();
+
+    if (event.key === 'ArrowRight')
+        document.getElementById('next').click();
+
+});
+
+
+// UPLOAD PHOTOS
+
+document.getElementById('upload').addEventListener(
+    'change', function(event) {
+
+    const files = Array.from(event.target.files);
+
+    files.forEach(file => {
+
+        if (!file.type.startsWith('image/')) return;
+
+        const imageURL = URL.createObjectURL(file);
+
+        const card = document.createElement('article');
+
+        card.className = 'photo-card';
+        card.dataset.category = 'everyday';
+        card.dataset.title =
+            file.name.replace(/\.[^/.]+$/, '');
+
+        card.dataset.description = 'Recently uploaded.';
+
+        card.innerHTML = `
+            <div class="image-wrapper">
+                <img class="photo-image"
+                    src="${imageURL}" alt="Uploaded photograph">
+            </div>
+            <div class="photo-info">
+                <span class="photo-title">
+                    ${file.name.replace(/\.[^/.]+$/, '')}
+                </span>
+                <span class="photo-category">Everyday</span>
+            </div>
+        `;
+
+        document.getElementById('galleryGrid')
+            .prepend(card);
+
+        card.addEventListener('click', () => {
+
+            const visible = [...document.querySelectorAll(
+                '.photo-card:not(.hidden)')];
+
+            openLightbox(visible.indexOf(card));
+
+        });
+
+    });
+
+    // Return gallery to All Photos
+
+    filters.forEach(btn =>
+        btn.classList.remove('active'));
+
+    document.querySelector('[data-category="all"]')
+        .classList.add('active');
+
+    cards.forEach(card =>
+        card.classList.remove('hidden'));
+
+    updateCount();
+
+    event.target.value = '';
+
+});
+
+</script>
+
+</body>
+</html>
